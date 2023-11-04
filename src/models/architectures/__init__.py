@@ -1,0 +1,1 @@
+from src.models.architectures import toxicity_classification_model

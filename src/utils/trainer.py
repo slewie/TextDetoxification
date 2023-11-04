@@ -45,12 +45,16 @@ class Trainer:
             torch.cuda.manual_seed_all(random_seed)
         transformers.set_seed(random_seed)
 
-    def _train_pytorch(self, optimizer, loss_fn, train_dataloader, val_dataloader=None, use_validation=False, **kwargs):
+    def _train_pytorch(self, optimizer, loss_fn, train_dataloader, val_dataloader=None, use_validation=False,
+                       save_model=False, **kwargs):
 
         for epoch in range(1, self.num_epochs):
             self._train_one_epoch_pytorch(train_dataloader, optimizer, loss_fn, epoch_num=epoch)
             if use_validation:
                 self._val_one_epoch_pytorch(val_dataloader, loss_fn, epoch)
+        if save_model:
+            model_scripted = torch.jit.script(self.model)
+            model_scripted.save(f'../models/{str(self.model).split("(")[0]}.pt')
 
     def _train_one_epoch_pytorch(self, dataloader, optimizer, loss_fn, epoch_num):
         loop = tqdm(
