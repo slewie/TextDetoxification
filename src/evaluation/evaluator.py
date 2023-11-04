@@ -1,5 +1,6 @@
 import numpy as np
 import evaluate
+from src.utils.predictor import Predictor
 
 
 class Evaluator:
@@ -8,6 +9,7 @@ class Evaluator:
     """
     def __init__(self, tokenizer, metric: str = 'meteor'):
         self.metric = evaluate.load(metric)
+        self.sta_model = Predictor('s-nlp/roberta_toxicity_classifier_v1', 'transformers', 'classification')
         self.tokenizer = tokenizer
 
     @staticmethod
@@ -27,5 +29,7 @@ class Evaluator:
         decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
 
         decoded_preds, decoded_labels = self._postprocess_text(decoded_preds, decoded_labels)
+        sta_result = self.sta_model.predict(decoded_preds)
         result = self.metric.compute(predictions=decoded_preds, references=decoded_labels)
+        result['STA'] = np.array(sta_result).mean()
         return result

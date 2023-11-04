@@ -152,7 +152,7 @@ class Trainer:
         model_name = self.model.split("/")[-1]
         evaluator = Evaluator(tokenizer)
         args = Seq2SeqTrainingArguments(
-            f"{model_name}-finetuned",
+            f"../models/{model_name}-finetuned",
             evaluation_strategy="epoch",
             learning_rate=learning_rate,
             per_device_train_batch_size=batch_size,
