@@ -3,6 +3,8 @@ import torch
 import random
 import numpy as np
 import transformers
+from transformers import AutoModelForSeq2SeqLM, DataCollatorForSeq2Seq, Seq2SeqTrainingArguments, Seq2SeqTrainer, \
+    AutoTokenizer
 
 
 class Trainer:
@@ -19,7 +21,10 @@ class Trainer:
         """
         self.num_epochs = num_epochs
         self.device = device
-        self.model = model.to(self.device)
+        if isinstance(model, str):
+            self.model = model
+        else:
+            self.model = model.to(self.device)
         if random_seed is not None:
             self._set_seed(random_seed)
         self.library = library
@@ -40,7 +45,7 @@ class Trainer:
             torch.cuda.manual_seed_all(random_seed)
         transformers.set_seed(random_seed)
 
-    def _train_pytorch(self, optimizer, loss_fn, train_dataloader, val_dataloader=None, use_validation=False):
+    def _train_pytorch(self, optimizer, loss_fn, train_dataloader, val_dataloader=None, use_validation=False, **kwargs):
 
         for epoch in range(1, self.num_epochs):
             self._train_one_epoch_pytorch(train_dataloader, optimizer, loss_fn, epoch_num=epoch)
@@ -99,8 +104,35 @@ class Trainer:
         torch.cuda.empty_cache()
         return val_loss / total
 
-    def _train_transformers(self):
-        pass
+    def _train_transformers(self, tokenized_dataset, learning_rate: float = 2e-5, batch_size: int = 32, **kwargs):
+        model = AutoModelForSeq2SeqLM.from_pretrained(self.model)
+        tokenizer = AutoTokenizer.from_pretrained(self.model)
+        model_name = self.model.split("/")[-1]
+        args = Seq2SeqTrainingArguments(
+            f"{model_name}-finetuned",
+            evaluation_strategy="epoch",
+            learning_rate=learning_rate,
+            per_device_train_batch_size=batch_size,
+            per_device_eval_batch_size=batch_size,
+            weight_decay=0.01,
+            save_total_limit=3,
+            num_train_epochs=self.num_epochs,
+            predict_with_generate=True,
+            # fp16=True,
+            report_to=['none'],
+        )
+        data_collator = DataCollatorForSeq2Seq(tokenizer, model=self.model)
+        trainer = Seq2SeqTrainer(
+            model,
+            args,
+            train_dataset=tokenized_dataset["train"],
+            eval_dataset=tokenized_dataset["test"],
+            data_collator=data_collator,
+            tokenizer=tokenizer
+        )
+        print('Start training..')
+        trainer.train()
+        trainer.save_model(f'../models/{model_name}')
 
     def train(self, num_epochs: int | None = None, **kwargs):
         if num_epochs is not None:
@@ -109,4 +141,4 @@ class Trainer:
             case 'pytorch':
                 self._train_pytorch(**kwargs)
             case 'transformers':
-                self._train_transformers()
+                self._train_transformers(**kwargs)
