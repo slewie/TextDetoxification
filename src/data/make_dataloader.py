@@ -6,8 +6,9 @@ import torch
 import torch.utils.data as data_utils
 
 
-def make_dataloader_transformers(data_path, model_name, test_size: float = 0.1, max_length: int = 128,
+def _make_dataloader_transformers(data_path, model_name, test_size: float = 0.1, max_length: int = 128,
                                  sample_size: int = 50000):
+
     print('Creating dataloader...')
     df = pd.read_csv(data_path)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -29,7 +30,7 @@ def make_dataloader_transformers(data_path, model_name, test_size: float = 0.1, 
     return tokenized_dataset
 
 
-def make_dataloader_pytorch(data_path, model_name, test_size: float = 0.1, batch_size: int = 512,
+def _make_dataloader_pytorch(data_path, model_name, test_size: float = 0.1, batch_size: int = 512,
                             random_seed: int | None = 0, device: str = 'cpu'):
     print('Creating dataloader...')
     df = pd.read_csv(data_path)

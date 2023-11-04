@@ -18,6 +18,7 @@ class Trainer:
         :param library: parameter that corresponds to which library the model is from: `pytorch` or `transformers`
         :param num_epochs: number of model training epochs
         :param random_seed: parameter responsible for reproducible results
+        :param device: on which device train model
         """
         self.num_epochs = num_epochs
         self.device = device
@@ -31,32 +32,54 @@ class Trainer:
         self._check_library()
 
     def _check_library(self):
+        """
+        The function checks whether the 'library' parameter is supported or not.
+        """
         if self.library not in ['pytorch', 'transformers']:
             raise NameError(
                 f"'{self.library}' is not supported. "
                 f"You can use only 'pytorch' and 'transformers' as parameter 'library'")
 
-    @staticmethod
-    def _set_seed(random_seed):
+    def _set_seed(self, random_seed):
+        """
+        Function fixes the random seed in all libraries
+        """
         np.random.seed(random_seed)
         random.seed(random_seed)
         torch.manual_seed(random_seed)
-        if torch.cuda.is_available():
+        if self.device == 'cuda':
             torch.cuda.manual_seed_all(random_seed)
         transformers.set_seed(random_seed)
 
     def _train_pytorch(self, optimizer, loss_fn, train_dataloader, val_dataloader=None, use_validation=False,
                        save_model=False, **kwargs):
-
+        """
+        The function runs the training process for pytorch model
+        :param optimizer: model optimizer. Adam by default
+        :param loss_fn: loss function. Binary Cross Entropy by default
+        :param train_dataloader: dataloader with train data
+        :param val_dataloader: dataloader with validation data
+        :param use_validation: whether to use verification or not
+        :param save_model: whether to save model or not. Model is saved into ../models directory with class name
+        """
+        print('Start training..')
         for epoch in range(1, self.num_epochs):
             self._train_one_epoch_pytorch(train_dataloader, optimizer, loss_fn, epoch_num=epoch)
             if use_validation:
                 self._val_one_epoch_pytorch(val_dataloader, loss_fn, epoch)
+        print('Training is finished')
         if save_model:
             model_scripted = torch.jit.script(self.model)
             model_scripted.save(f'../models/{str(self.model).split("(")[0]}.pt')
 
     def _train_one_epoch_pytorch(self, dataloader, optimizer, loss_fn, epoch_num):
+        """
+        Function for training one epoch. Also, prints training information using tqdm module
+        :param dataloader: dataloader with train data
+        :param optimizer: model optimizer
+        :param loss_fn: loss function
+        :param epoch_num: shows at what epoch the training was used
+        """
         loop = tqdm(
             enumerate(dataloader, 1),
             total=len(dataloader),
@@ -82,6 +105,12 @@ class Trainer:
             loop.set_postfix({"loss": train_loss / (i * len(y))})
 
     def _val_one_epoch_pytorch(self, dataloader, loss_fn, epoch_num=-1):
+        """
+        Function for validating one epoch. Also, prints training information using tqdm module
+        :param dataloader: dataloader with train data
+        :param loss_fn: loss function
+        :param epoch_num: shows at what epoch the training was used
+        """
         loop = tqdm(
             enumerate(dataloader, 1),
             total=len(dataloader),
@@ -106,9 +135,16 @@ class Trainer:
                 loop.set_postfix({"loss": val_loss / total})
 
         torch.cuda.empty_cache()
-        return val_loss / total
 
-    def _train_transformers(self, tokenized_dataset, learning_rate: float = 2e-5, batch_size: int = 32, **kwargs):
+    def _train_transformers(self, tokenized_dataset, learning_rate: float = 2e-5, batch_size: int = 32,
+                            save_model: bool = False, **kwargs):
+        """
+        The function runs the training process for transformers model. Function uses trainers from transformers library
+        :param tokenized_dataset: dataset converted to the tokens for language model
+        :param learning_rate: starting learning rate
+        :param batch_size: batch size for the training
+        :param save_model: whether to save model or not. Model is saved into ../models directory with model name
+        """
         model = AutoModelForSeq2SeqLM.from_pretrained(self.model)
         tokenizer = AutoTokenizer.from_pretrained(self.model)
         model_name = self.model.split("/")[-1]
@@ -136,9 +172,14 @@ class Trainer:
         )
         print('Start training..')
         trainer.train()
-        trainer.save_model(f'../models/{model_name}')
+        print('Training is finished')
+        if save_model:
+            trainer.save_model(f'../models/{model_name}-finetuned')
 
     def train(self, num_epochs: int | None = None, **kwargs):
+        """
+        Runs training procedure based on model library
+        """
         if num_epochs is not None:
             self.num_epochs = num_epochs
         match self.library:
