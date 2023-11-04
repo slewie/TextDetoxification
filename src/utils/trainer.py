@@ -5,6 +5,7 @@ import numpy as np
 import transformers
 from transformers import AutoModelForSeq2SeqLM, DataCollatorForSeq2Seq, Seq2SeqTrainingArguments, Seq2SeqTrainer, \
     AutoTokenizer
+from src.evaluation.evaluator import Evaluator
 
 
 class Trainer:
@@ -29,6 +30,7 @@ class Trainer:
         if random_seed is not None:
             self._set_seed(random_seed)
         self.library = library
+
         self._check_library()
 
     def _check_library(self):
@@ -148,6 +150,7 @@ class Trainer:
         model = AutoModelForSeq2SeqLM.from_pretrained(self.model)
         tokenizer = AutoTokenizer.from_pretrained(self.model)
         model_name = self.model.split("/")[-1]
+        evaluator = Evaluator(tokenizer)
         args = Seq2SeqTrainingArguments(
             f"{model_name}-finetuned",
             evaluation_strategy="epoch",
@@ -168,7 +171,8 @@ class Trainer:
             train_dataset=tokenized_dataset["train"],
             eval_dataset=tokenized_dataset["test"],
             data_collator=data_collator,
-            tokenizer=tokenizer
+            tokenizer=tokenizer,
+            compute_metrics=evaluator.compute_metric
         )
         print('Start training..')
         trainer.train()
