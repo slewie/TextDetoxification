@@ -7,6 +7,7 @@ from transformers import AutoModelForSeq2SeqLM, DataCollatorForSeq2Seq, Seq2SeqT
     AutoTokenizer
 from src.evaluation.evaluator import Evaluator
 from src.utils.make_embeddings import make_embeddings
+import os
 
 
 class Trainer:
@@ -151,9 +152,9 @@ class Trainer:
         :param batch_size: batch size for the training
         :param save_model: whether to save model or not. Model is saved into ../models directory with model name
         """
-        print('Creating embeddings...')
-        make_embeddings(embedding_path=self.sim_model_path, data_embeddings_path=data_embeddings_path)
-        print('Embeddings created')
+        if not os.path.exists(self.sim_model_path):
+            make_embeddings(embedding_path=self.sim_model_path, data_embeddings_path=data_embeddings_path)
+
         model = AutoModelForSeq2SeqLM.from_pretrained(self.model)
         tokenizer = AutoTokenizer.from_pretrained(self.model)
         model_name = self.model.split("/")[-1]
