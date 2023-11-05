@@ -13,7 +13,8 @@ class Trainer:
     Class is responsible for training model. It supports only models from pytorch and transformers libraries.
     """
 
-    def __init__(self, model, library: str, num_epochs: int = 10, random_seed: int | None = 0, device: str = 'cpu'):
+    def __init__(self, model, library: str, num_epochs: int = 10, random_seed: int | None = 0, device: str = 'cpu',
+                 sim_model_path: str = '../models/fasttext.bin'):
         """
         :param model: training model
         :param library: parameter that corresponds to which library the model is from: `pytorch` or `transformers`
@@ -32,6 +33,7 @@ class Trainer:
         self.library = library
 
         self._check_library()
+        self.sim_model_path = sim_model_path
 
     def _check_library(self):
         """
@@ -139,7 +141,7 @@ class Trainer:
         torch.cuda.empty_cache()
 
     def _train_transformers(self, tokenized_dataset, learning_rate: float = 2e-5, batch_size: int = 32,
-                            save_model: bool = False, model_path = '../models/', **kwargs):
+                            save_model: bool = False, model_path='../models/', **kwargs):
         """
         The function runs the training process for transformers model. Function uses trainers from transformers library
         :param tokenized_dataset: dataset converted to the tokens for language model
@@ -150,7 +152,7 @@ class Trainer:
         model = AutoModelForSeq2SeqLM.from_pretrained(self.model)
         tokenizer = AutoTokenizer.from_pretrained(self.model)
         model_name = self.model.split("/")[-1]
-        evaluator = Evaluator(tokenizer)
+        evaluator = Evaluator(tokenizer, sim_model_path=self.sim_model_path)
         args = Seq2SeqTrainingArguments(
             f"./{model_name}-finetuned",
             evaluation_strategy="epoch",

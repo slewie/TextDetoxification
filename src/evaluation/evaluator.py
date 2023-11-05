@@ -12,7 +12,7 @@ class Evaluator:
     metrics for identifying toxicity level and content preservation
     """
 
-    def __init__(self, tokenizer, metric: str = 'meteor', sim_model_path = '../models/fasttext.bin'):
+    def __init__(self, tokenizer, metric: str = 'meteor', sim_model_path: str = '../models/fasttext.bin'):
         """
         :param tokenizer: Which tokenizer will be used for text decoding
         :param metric: text translation metric
