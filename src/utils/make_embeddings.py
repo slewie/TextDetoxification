@@ -4,6 +4,10 @@ import os
 
 
 def make_embeddings(embedding_name="fasttext.bin"):
+    """
+    Function downloads embeddings from cloud storage
+    :param embedding_name: filename for the embeddings
+    """
     print('Downloading embeddings...')
     base_url = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?'
     public_key = 'https://disk.yandex.ru/d/4KOFyzhKjvYUtg'

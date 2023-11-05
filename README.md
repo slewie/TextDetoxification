@@ -51,5 +51,5 @@ with such parameters:
 
 * --model_name | what is model will be trained.
 * --library | parameter that corresponds to which library the model is from: `pytorch` or `transformers`
- 
 
+After running the command, you need to write a text sequence that needs to be predicted or generated.
