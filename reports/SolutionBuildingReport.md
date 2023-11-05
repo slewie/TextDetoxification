@@ -56,16 +56,16 @@ Each model was trained on equal epochs number and the same dataset part.
 ### Experiment results 
 (Unfortunately, bart's results were not tracked, but you can check it in notebook 2.0):
 
-![image](./figures/val_loss.png)
+![image](./figures/model_selection/val_loss.png)
 Loss on validation set
 
-![image](./figures/meteor.png)
+![image](./figures/model_selection/meteor.png)
 Meteor score
 
-![image](./figures/sta.png)
+![image](./figures/model_selection/sta.png)
 Toxicity score
 
-![image](./figures/sim.png)
+![image](./figures/model_selection/sim.png)
 Similarity score
 
 The T5-base-detox model was the best in all metrics and I will use it in the final solution.
