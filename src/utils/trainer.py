@@ -6,6 +6,7 @@ import transformers
 from transformers import AutoModelForSeq2SeqLM, DataCollatorForSeq2Seq, Seq2SeqTrainingArguments, Seq2SeqTrainer, \
     AutoTokenizer
 from src.evaluation.evaluator import Evaluator
+from src.utils.make_embeddings import make_embeddings
 
 
 class Trainer:
@@ -141,7 +142,8 @@ class Trainer:
         torch.cuda.empty_cache()
 
     def _train_transformers(self, tokenized_dataset, learning_rate: float = 2e-5, batch_size: int = 32,
-                            save_model: bool = False, model_path='../models/', **kwargs):
+                            save_model: bool = False, model_path='../models/',
+                            data_embeddings_path='../data/interim/toxicity_levels.csv', **kwargs):
         """
         The function runs the training process for transformers model. Function uses trainers from transformers library
         :param tokenized_dataset: dataset converted to the tokens for language model
@@ -149,6 +151,9 @@ class Trainer:
         :param batch_size: batch size for the training
         :param save_model: whether to save model or not. Model is saved into ../models directory with model name
         """
+        print('Creating embeddings...')
+        make_embeddings(embedding_path=self.sim_model_path, data_embeddings_path=data_embeddings_path)
+        print('Embeddings created')
         model = AutoModelForSeq2SeqLM.from_pretrained(self.model)
         tokenizer = AutoTokenizer.from_pretrained(self.model)
         model_name = self.model.split("/")[-1]
