@@ -12,7 +12,7 @@ class Evaluator:
     metrics for identifying toxicity level and content preservation
     """
 
-    def __init__(self, tokenizer, metric: str = 'meteor'):
+    def __init__(self, tokenizer, metric: str = 'meteor', sim_model_path = '../models/fasttext.bin'):
         """
         :param tokenizer: Which tokenizer will be used for text decoding
         :param metric: text translation metric
@@ -20,7 +20,7 @@ class Evaluator:
         """
         self.metric = evaluate.load(metric)
         self.sta_model = Predictor('s-nlp/roberta_toxicity_classifier_v1', 'transformers', 'classification')
-        self.sim_model = fasttext.load_model('../models/fasttext.bin')
+        self.sim_model = fasttext.load_model(sim_model_path)
         self.tokenizer = tokenizer
 
     @staticmethod

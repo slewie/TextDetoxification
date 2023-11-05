@@ -139,7 +139,7 @@ class Trainer:
         torch.cuda.empty_cache()
 
     def _train_transformers(self, tokenized_dataset, learning_rate: float = 2e-5, batch_size: int = 32,
-                            save_model: bool = False, **kwargs):
+                            save_model: bool = False, model_path = '../models/', **kwargs):
         """
         The function runs the training process for transformers model. Function uses trainers from transformers library
         :param tokenized_dataset: dataset converted to the tokens for language model
@@ -152,7 +152,7 @@ class Trainer:
         model_name = self.model.split("/")[-1]
         evaluator = Evaluator(tokenizer)
         args = Seq2SeqTrainingArguments(
-            f"../models/{model_name}-finetuned",
+            f"./{model_name}-finetuned",
             evaluation_strategy="epoch",
             learning_rate=learning_rate,
             per_device_train_batch_size=batch_size,
@@ -178,7 +178,7 @@ class Trainer:
         trainer.train()
         print('Training is finished')
         if save_model:
-            trainer.save_model(f'../models/{model_name}-finetuned')
+            trainer.save_model(f'{model_path}{model_name}-finetuned')
 
     def train(self, num_epochs: int | None = None, **kwargs):
         """
