@@ -3,8 +3,7 @@ from urllib.parse import urlencode
 import os
 
 
-def make_embeddings(data_embeddings_path='../data/interim/toxicity_levels.csv',
-                    embedding_path="fasttext.bin"):
+def make_embeddings(embedding_path="fasttext.bin"):
     print('Downloading embeddings...')
     base_url = 'https://cloud-api.yandex.net/v1/disk/public/resources/download?'
     public_key = 'https://disk.yandex.ru/d/4KOFyzhKjvYUtg'
@@ -19,6 +18,3 @@ def make_embeddings(data_embeddings_path='../data/interim/toxicity_levels.csv',
             if chunk:
                 f.write(chunk)
     print('Embeddings created')
-
-
-make_embeddings()

@@ -143,8 +143,7 @@ class Trainer:
         torch.cuda.empty_cache()
 
     def _train_transformers(self, tokenized_dataset, learning_rate: float = 2e-5, batch_size: int = 32,
-                            save_model: bool = False, model_path='../models/',
-                            data_embeddings_path='../data/interim/toxicity_levels.csv', **kwargs):
+                            save_model: bool = False, model_path='../models/', **kwargs):
         """
         The function runs the training process for transformers model. Function uses trainers from transformers library
         :param tokenized_dataset: dataset converted to the tokens for language model
@@ -153,7 +152,7 @@ class Trainer:
         :param save_model: whether to save model or not. Model is saved into ../models directory with model name
         """
         if not os.path.exists(self.sim_model_path):
-            make_embeddings(embedding_path=self.sim_model_path, data_embeddings_path=data_embeddings_path)
+            make_embeddings(embedding_path=self.sim_model_path)
 
         model = AutoModelForSeq2SeqLM.from_pretrained(self.model)
         tokenizer = AutoTokenizer.from_pretrained(self.model)
