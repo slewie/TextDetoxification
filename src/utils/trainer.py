@@ -170,7 +170,7 @@ class Trainer:
             num_train_epochs=self.num_epochs,
             predict_with_generate=True,
             # fp16=True,
-            report_to=['none'],
+            report_to=['wandb'],
         )
         data_collator = DataCollatorForSeq2Seq(tokenizer, model=self.model)
         trainer = Seq2SeqTrainer(
