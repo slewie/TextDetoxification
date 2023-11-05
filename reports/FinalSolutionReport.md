@@ -6,6 +6,29 @@ The goal of this project was to develop a text detoxification model that can red
 
 ## Data Analysis
 
+### Toxicity of the sentences
+
+Firstly, I checked the distribution of `ref_tox` and `trn_tox`:
+
+![image](./figures/data_analysis/first_hist.png)
+
+We can see that `trn_tox` and `ref_tox` both are in the range from 0 to 1. I transformed the dataset so that one column contains only toxic phrases, and the second contains neutral phrases:
+
+![image](./figures/data_analysis/second_hist.png)
+
+### Toxicity difference
+
+Secondly, I examined the difference between `tox_tox` and `detox_tox`. My idea was that can be case when the difference is low, and it means that quality of detoxification is low, and I removed all cases where df['detox_tox'] > 0.35 or df['tox_diff'] < 0.6
+
+### Similarity and length difference
+
+Finaly, I reviewed the `length_diff` and `similarity`, because I had hypothesis, that can be result, where toxic words was just removed and the meaning of sentence is changed.
+
+![image](./figures/data_analysis/1pairplot.png)
+
+But after exploring data, I concluded that often the pairs with high level of `lenght_diff` just small sentences, where toxic words was removed and meaning doesn't change. I dropped only the values with high level of `lenght_diff`, small level of `similarity` and where `toxic_len` > `detox_len` in order to prevent my hypothesis.
+
+
 ## Model Specification
 
 Four models were evaluated: T5-small, T5-base-detox, Bart-base-detox, and Flan-T5-base. The T5-base-detox model from HuggingFace was selected as it achieved the best performance on validation metrics.
@@ -62,7 +85,7 @@ You can see the detoxification results by finetuned T5-base-detox model:
 
 ![image](./figures/final_solution/predictions.png)
 
-
+Also, you can test the model using [link](https://huggingface.co/slewie/t5-ultradetox-finetuned)
 - Toxicity score 0.32 on average
 - METEOR score of 0.61 indicating good meaning retention
 - Similarity score of 0.91 showing high semantic similarity
