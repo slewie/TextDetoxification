@@ -152,7 +152,7 @@ class Trainer:
         :param save_model: whether to save model or not. Model is saved into ../models directory with model name
         """
         if not os.path.exists(self.sim_model_path):
-            make_embeddings(embedding_path=self.sim_model_path)
+            make_embeddings()
 
         model = AutoModelForSeq2SeqLM.from_pretrained(self.model)
         tokenizer = AutoTokenizer.from_pretrained(self.model)
