@@ -7,8 +7,15 @@ import torch.utils.data as data_utils
 
 
 def _make_dataloader_transformers(data_path, model_name, test_size: float = 0.1, max_length: int = 128,
-                                 sample_size: int = 50000):
-
+                                  sample_size: int = 50000):
+    """
+    Creates tokenized_dataset for seq2seq for transformers model
+    :param data_path: path to the input .csv file
+    :param model_name: model name
+    :param test_size: size of the validation part
+    :param max_length: maximum length of the tokenized sequence
+    :param sample_size: how many elements will be used for training
+    """
     print('Creating dataloader...')
     df = pd.read_csv(data_path)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -31,13 +38,22 @@ def _make_dataloader_transformers(data_path, model_name, test_size: float = 0.1,
 
 
 def _make_dataloader_pytorch(data_path, model_name, test_size: float = 0.1, batch_size: int = 512,
-                            random_seed: int | None = 0, device: str = 'cpu'):
+                             random_seed: int | None = 0, device: str = 'cpu'):
+    """
+    Creates dataloader for pytorch model
+    :param data_path: path to the input .csv file
+    :param model_name: model name
+    :param test_size: size of the validation part
+    :param batch_size: batch size for the dataloader
+    :param random_seed: parameter responsible for reproducible results
+    :param device: on which device train model
+    """
     print('Creating dataloader...')
     df = pd.read_csv(data_path)
     threshold = 0.5
 
     df['tox_level'] = df['tox_level'].apply(lambda x: 1 if x > threshold else 0)
-    tokenizer = AutoTokenizer.from_pretrained('t5-small')  # TODO: read the tokenizer name from console
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     def preprocessing_stage(sample):
         # in the preprocessing phase, I convert the input text to the list of tokens
