@@ -1,6 +1,7 @@
-# TextDetoxification Assignment
-Vladislav Kulikov v.kulikov@innopolis.university BS21-DS-02
-
+# TextDetoxification
+This repository contains a Text Detoxification project - transforming the text with toxic style into the text with the same meaning but with neutral style.
+I have tried different models to solve this problem, the pre-trained T5 shows the best performance.
+You can download model [here](https://huggingface.co/slewie/t5-ultradetox-finetuned)
 
 ## Installation
 
